@@ -1,0 +1,9 @@
+- name: Deploy Wordpress Blog
+  hosts: localhost
+
+  roles:
+    - server
+    - php
+    - mysql
+    - wordpress
+
