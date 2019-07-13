@@ -1,0 +1,40 @@
+---
+- name: download wordpress
+  get_url:
+    url: "https://wordpress.org/latest.tar.gz"
+    dest: "filetar/wordpress.tar.gz"
+    validate_certs: no
+
+- name: extract wordpress
+  shell: "tar -xvf filetar/wordpress.tar.gz"
+  sudo: yes
+
+- name: copy extracted wordpress
+  shell: "cp -r wordpress/ /var/www/"
+  sudo: yes
+
+- name: update apache site
+  sudo: yes
+  lineinfile:
+    dest: "/etc/apache2/sites-enabled/000-default.conf"
+    regexp: "(.)+DocumentRoot /var/www/html"
+    line: "DocumentRoot /var/www/wordpress"
+  notify:
+    - restart apache
+  sudo: yes
+
+- name: copy config file
+  shell: "mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php"
+  sudo: yes
+
+- name: update config file
+  lineinfile:
+    dest: "/var/www/wordpress/wp-config.php"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - {'regexp': "define\\('DB_NAME', '(.)+'\\);", 'line': "define('DB_NAME', '{{ blog_database }}');"}        
+    - {'regexp': "define\\('DB_USER', '(.)+'\\);", 'line': "define('DB_USER', '{{ blog_uname }}');"}        
+    - {'regexp': "define\\('DB_PASSWORD', '(.)+'\\);", 'line': "define('DB_PASSWORD', '{{ blog_passwd }}');"}
+  sudo: yes
+

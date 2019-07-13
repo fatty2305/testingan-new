@@ -1,0 +1,14 @@
+---
+- name: create mysql db
+  mysql_db:
+    login_unix_socket: "/var/run/mysqld/mysqld.sock"
+    name: "{{ blog_database }}"
+    state: present
+  sudo: yes
+
+- name: create user for mysql db
+  mysql_user:
+    name: "{{ blog_uname }}"
+    password: "{{ blog_passwd }}"
+  sudo: yes
+
